@@ -1,0 +1,60 @@
+# pod-with-node-anti-affinity.yaml
+#
+apiVersion: v1
+kind: Pod
+metadata:
+  name: utrains1
+  namespace: geolocation
+  labels:
+   app: utrains1
+spec:
+  containers:
+    - name: utrains-app
+      image: httpd
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: sku
+            operator: NotIn
+            values:
+            - small
+            
+#
+# First assign labels on all nodes in our cluster
+# kubectl label node nodeone.example.com sku=small
+# kubectl label node nodetwo.example.com sku=heavy
+#
+# Confirm the labels
+# kubectl get nodes --show-labels
+#
+# Lets think we have some nodes with label small/medium/heavy
+# We want this pod, NEVER to be deployed on node having sku=small
+#
+# Confirm the labels on nodes using:
+#
+# kubectl get nodes --show-labels 
+#
+# create namespace geolocation -
+# kubectl create namespace geolocation
+#
+# run the pod
+# kubectl create -f pod-with-node-anti-affinity.yaml
+#
+# check the pod
+# kubectl get pods -n geolocation -o wide
+#
+# get details about pod
+# kubectl describe pod utrains -n geolocation
+#
+# check for the node where its running. It will NOT be
+# running on node having sku=small label
+# 
+# delete pod
+# kubectl delete pod utrains -n geolocation
+#
+# delete the labels
+# kubectl label node nodeone.example.com sku-
+# kubectl label node nodetwo.example.com sku-
+# 
